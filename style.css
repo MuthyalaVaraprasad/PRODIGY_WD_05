@@ -998,3 +998,20 @@ footer a {
 footer a:hover {
     color: var(--text-main);
 }
+
+/* Extra Mobile Responsiveness Overrides */
+@media (max-width: 480px) {
+    .daily-row {
+        grid-template-columns: 2fr 1fr 1fr 2fr;
+        padding: 0.65rem 0.75rem;
+    }
+    .temp-bar {
+        display: none !important;
+    }
+    .brand {
+        font-size: 1.5rem;
+    }
+    .detail-card {
+        padding: 1rem 0.75rem;
+    }
+}
