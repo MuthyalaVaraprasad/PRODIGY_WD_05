@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atmosphere - Premium Weather Dashboard</title>
+    <link rel="stylesheet" href="style.css?v=1.2">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Background Animated Particles Container -->
+    <div id="weather-particles" class="particles-container"></div>
+
+    <!-- 1. Full Screen Loader -->
+    <div id="loading-screen" class="loading-overlay">
+        <div class="loader-content">
+            <i data-lucide="sun-dim" class="loader-spinner"></i>
+            <h2>Detecting your location...</h2>
+            <p>Gathering real-time atmospheric data</p>
+        </div>
+    </div>
+
+    <!-- 2. Location Access Required Fallback Screen -->
+    <div id="location-prompt" class="location-prompt-overlay hidden">
+        <div class="glass-panel prompt-card">
+            <div class="prompt-icon-wrapper">
+                <i data-lucide="map-pin-off" class="pulse-icon"></i>
+            </div>
+            <h2>Location Access Required</h2>
+            <p>We couldn't automatically detect your location. Please grant location access in your browser or choose a city below to open the dashboard.</p>
+            
+            <div class="quick-cities-title">Popular Cities</div>
+            <div class="quick-cities-grid">
+                <button class="btn-quick-city" data-lat="51.5074" data-lon="-0.1278" data-name="London, UK">London</button>
+                <button class="btn-quick-city" data-lat="40.7128" data-lon="-74.0060" data-name="New York, USA">New York</button>
+                <button class="btn-quick-city" data-lat="35.6762" data-lon="139.6503" data-name="Tokyo, Japan">Tokyo</button>
+                <button class="btn-quick-city" data-lat="48.8566" data-lon="2.3522" data-name="Paris, France">Paris</button>
+                <button class="btn-quick-city" data-lat="-33.8688" data-lon="151.2093" data-name="Sydney, Australia">Sydney</button>
+                <button class="btn-quick-city" data-lat="1.3521" data-lon="103.8198" data-name="Singapore">Singapore</button>
+            </div>
+
+            <div class="prompt-search-wrapper">
+                <div class="search-bar">
+                    <input 
+                        type="text" 
+                        id="prompt-search-input" 
+                        class="search-input" 
+                        placeholder="Or search for a city manually..."
+                        autocomplete="off"
+                    >
+                </div>
+                <div id="prompt-suggestions" class="suggestions-box"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Main Weather Dashboard -->
+    <div id="dashboard" class="app-container hidden">
+        <!-- Header -->
+        <header>
+            <div class="brand">
+                <i data-lucide="sun-dim" class="brand-icon"></i>
+                <span>Atmosphere</span>
+            </div>
+            
+            <!-- Controls & Search -->
+            <div class="header-controls">
+                <div class="search-box-wrapper">
+                    <div class="search-bar">
+                        <input 
+                            type="text" 
+                            id="search-input" 
+                            class="search-input" 
+                            placeholder="Search for a city..." 
+                            autocomplete="off"
+                        >
+                        <button id="btn-locate" class="btn-locate" title="Use current location">
+                            <i data-lucide="map-pin"></i>
+                        </button>
+                    </div>
+                    <div id="suggestions" class="suggestions-box"></div>
+                </div>
+                
+                <!-- Celsius/Fahrenheit Unit Toggle -->
+                <button id="btn-unit-toggle" class="btn-unit-toggle" title="Toggle unit">
+                    <span class="unit-c active">°C</span>
+                    <span class="unit-divider">|</span>
+                    <span class="unit-f">°F</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Layout Grid -->
+        <main class="dashboard-grid">
+            <!-- Left Column: Current Weather & Windy Map -->
+            <div class="main-column">
+                <!-- Current Weather Card -->
+                <section id="current-weather" class="glass-panel current-weather-card">
+                    <!-- Loaded dynamically in app.js -->
+                </section>
+
+                <!-- Windy Interactive Weather Map -->
+                <section class="glass-panel map-card">
+                    <h2 class="card-title">
+                        <i data-lucide="map"></i>
+                        <span>Live Wind Map</span>
+                    </h2>
+                    <div class="map-wrapper">
+                        <iframe 
+                            id="windy-map" 
+                            src="" 
+                            frameborder="0"
+                            title="Interactive Windy Weather Map"
+                            loading="lazy"
+                        ></iframe>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Stats, Hourly, Daily -->
+            <div class="side-column">
+                <!-- Detailed Weather Cards Grid -->
+                <section class="details-grid">
+                    <!-- Feels Like -->
+                    <div class="glass-panel detail-card">
+                        <div class="detail-icon-wrapper">
+                            <i data-lucide="thermometer"></i>
+                        </div>
+                        <div class="detail-info">
+                            <span class="detail-label">Feels Like</span>
+                            <span id="stat-feels-like" class="detail-value">--</span>
+                        </div>
+                    </div>
+                    <!-- Humidity -->
+                    <div class="glass-panel detail-card">
+                        <div class="detail-icon-wrapper">
+                            <i data-lucide="droplets"></i>
+                        </div>
+                        <div class="detail-info">
+                            <span class="detail-label">Humidity</span>
+                            <span id="stat-humidity" class="detail-value">--</span>
+                        </div>
+                    </div>
+                    <!-- Wind -->
+                    <div class="glass-panel detail-card">
+                        <div class="detail-icon-wrapper">
+                            <i data-lucide="wind"></i>
+                        </div>
+                        <div class="detail-info">
+                            <span class="detail-label">Wind</span>
+                            <span id="stat-wind" class="detail-value">--</span>
+                            <span id="stat-wind-dir" class="detail-subtext">--</span>
+                        </div>
+                    </div>
+                    <!-- UV Index -->
+                    <div class="glass-panel detail-card">
+                        <div class="detail-icon-wrapper">
+                            <i data-lucide="sun"></i>
+                        </div>
+                        <div class="detail-info">
+                            <span class="detail-label">UV Index</span>
+                            <span id="stat-uv" class="detail-value">--</span>
+                            <span id="stat-uv-text" class="detail-subtext">--</span>
+                        </div>
+                    </div>
+                    <!-- Precipitation -->
+                    <div class="glass-panel detail-card">
+                        <div class="detail-icon-wrapper">
+                            <i data-lucide="cloud-rain"></i>
+                        </div>
+                        <div class="detail-info">
+                            <span class="detail-label">Rainfall</span>
+                            <span id="stat-rain" class="detail-value">--</span>
+                        </div>
+                    </div>
+                    <!-- Pressure -->
+                    <div class="glass-panel detail-card">
+                        <div class="detail-icon-wrapper">
+                            <i data-lucide="gauge"></i>
+                        </div>
+                        <div class="detail-info">
+                            <span class="detail-label">Pressure</span>
+                            <span id="stat-pressure" class="detail-value">--</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Hourly Forecast -->
+                <section class="glass-panel hourly-card">
+                    <h2 class="card-title">
+                        <i data-lucide="clock"></i>
+                        <span>Hourly Forecast (24h)</span>
+                    </h2>
+                    <div id="hourly-forecast" class="hourly-scroll">
+                        <!-- Loaded dynamically in app.js -->
+                    </div>
+                </section>
+
+                <!-- 7-Day Forecast -->
+                <section class="glass-panel daily-card">
+                    <h2 class="card-title">
+                        <i data-lucide="calendar"></i>
+                        <span>7-Day Forecast</span>
+                    </h2>
+                    <div id="daily-forecast" class="daily-forecast-list">
+                        <!-- Loaded dynamically in app.js -->
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>Designed by Muthyala Varaprasad</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notification for Errors -->
+    <div id="error-toast" class="error-toast">
+        <i data-lucide="alert-circle"></i>
+        <span id="error-message">An error occurred</span>
+    </div>
+
+    <!-- Javascript Logic -->
+    <script src="app.js?v=1.2"></script>
+</body>
+</html>
